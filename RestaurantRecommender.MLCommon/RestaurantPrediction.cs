@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ML.Data;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,6 +8,8 @@ namespace RestaurantRecommender.MLCommon
     public class RestaurantPrediction
     {
         public float Label;
-        public float Score;
+
+        [ColumnName("Score")]
+        public float PredictedRating;
     }
 }
