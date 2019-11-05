@@ -1,8 +1,11 @@
 ﻿using Microsoft.ML;
+using Microsoft.ML.AutoML;
+using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using RestaurantRecommender.MLCommon;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,8 +15,8 @@ namespace RestaurantRecommender.MLTrainer
 {
     class Program
     {
-        private const float predictionuserId = 4;
-        private const int predictionrestaurantId = 4;
+        private const float predictionuserId = 1;
+        private const int predictionrestaurantId = 9;
 
         private static readonly string fileName = "Restaurant_RecommenderModel.zip";
         private static readonly string training_fileName = "Restaurant_Ratings-train.csv";
@@ -21,10 +24,15 @@ namespace RestaurantRecommender.MLTrainer
         private static readonly string restaurant_base_fileName = "SampleRestaurantList.csv";
 
         private static readonly List<RestaurantTest> restaurant_Test_List = new List<RestaurantTest>();
+        private static readonly List<Restaurant> restaurant_Detail_List = new List<Restaurant>();
         private static readonly Random random = new Random();
+        private static readonly MLContext context = new MLContext();
+        private static IEnumerable<RestaurantTest> train_dataset = Enumerable.Empty<RestaurantTest>();
+        private static IEnumerable<RestaurantTest> test_dataset = Enumerable.Empty<RestaurantTest>();
+        private static readonly Stopwatch stopwatch = new Stopwatch();
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("=============== Applying Matrix Factorization machine learning ===============");
             // TODO Assign csv files here
             var training_Data_Location = Path.Combine(Environment.CurrentDirectory, "Data", training_fileName);
             var test_Data_Location = Path.Combine(Environment.CurrentDirectory, "Data", test_fileName);
@@ -34,7 +42,7 @@ namespace RestaurantRecommender.MLTrainer
             {
                 try
                 {
-                    Generate_Training_CSV_File();
+                    Generate_Training_And_Testing_CSV_File(context);
                 }
                 catch (Exception ex)
                 {
@@ -43,8 +51,7 @@ namespace RestaurantRecommender.MLTrainer
             }
             else
             {
-                var context = new MLContext();
-
+                stopwatch.Start();
                 // Read the training data which will be used to train the restaurant recommendation model
                 (IDataView training_Data_View, IDataView test_Data_View) = Load_DataSet(context, training_Data_Location, test_Data_Location);
 
@@ -53,11 +60,22 @@ namespace RestaurantRecommender.MLTrainer
 
                 // Evaluating dataset model after training
                 Evaluate_Dataset_Model(context, test_Data_View, model);
+                stopwatch.Stop();
 
                 // Testing prediction for creating a recommendation
                 Use_Model_For_Single_Prediction(context, model);
 
+                Console.WriteLine($"Time taken for matrix factorization algorithm - {stopwatch.ElapsedMilliseconds} ms");
+
+                //DataViewSchema modelSchema;
+                //ITransformer trained_model = context.Model.Load(Path.Combine(Environment.CurrentDirectory, "Data", fileName), out modelSchema);
+                //Use_Model_For_Single_Prediction(context, trained_model);
+
+                // Auto ML running the best algorithm for the dataset model
+                Best_Machine_Learning_Algorithm(context, training_Data_View);
+
                 // TODO Save model Logic
+                SaveModel(context, training_Data_View.Schema, model);
             }
         }
 
@@ -74,13 +92,15 @@ namespace RestaurantRecommender.MLTrainer
         public static ITransformer Build_And_Train_Data_Model(MLContext mlContext, IDataView training_data_view)
         {
             // Data transformation by encoding the features for training
-            var data_processing_pipeline = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "userIdEncoded", inputColumnName: nameof(RestaurantRating.userId))
-                .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "restaurantIdEncoded", inputColumnName: nameof(RestaurantRating.restaurantId)));
+            string userEncoded = nameof(RestaurantRating.userId) + "Encoded";
+            string restaurantEncoded = nameof(RestaurantRating.restaurantId) + "Encoded";
+            var data_processing_pipeline = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: userEncoded, inputColumnName: nameof(RestaurantRating.userId))
+                .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: restaurantEncoded, inputColumnName: nameof(RestaurantRating.restaurantId)));
 
             // Specify options for matrixfactorization trainer
             MatrixFactorizationTrainer.Options options = new MatrixFactorizationTrainer.Options();
-            options.MatrixColumnIndexColumnName = "userIdEncoded";
-            options.MatrixRowIndexColumnName = "restaurantIdEncoded";
+            options.MatrixColumnIndexColumnName = userEncoded;
+            options.MatrixRowIndexColumnName = restaurantEncoded;
             options.LabelColumnName = "Label";
             options.NumberOfIterations = 20;
             options.ApproximationRank = 100;
@@ -101,12 +121,15 @@ namespace RestaurantRecommender.MLTrainer
 
             var prediction = model.Transform(testDataView);
             var metrics = mlContext.Regression.Evaluate(prediction, labelColumnName: "Label", scoreColumnName: "Score");
-            Console.WriteLine("The model evaluation metrics RootMeanSquaredError: " + metrics.RootMeanSquaredError);
-            Console.WriteLine("The model evaluation metrics RSquared: " + metrics.RSquared);
+            Console.WriteLine($"The model evaluation metrics RootMeanSquaredError: {metrics.RootMeanSquaredError:0.##}");
+            Console.WriteLine($"The model evaluation metrics RSquared: {metrics.RSquared:0.##}");
+            Console.WriteLine($"The model evaluation metrics Absolute loss: {metrics.MeanAbsoluteError:0.##}");
+            Console.WriteLine($"The model evaluation metrics Squared loss: {metrics.MeanSquaredError:0.##}");
         }
 
         public static void Use_Model_For_Single_Prediction(MLContext mlContext, ITransformer model)
         {
+            Console.WriteLine("=============== Making a prediction ===============");
             // Testing the possible predictions
             var prediction_engine = mlContext.Model.CreatePredictionEngine<RestaurantRating, RestaurantPrediction>(model);
             // To predict which restaurant will be used as a suggestion for the user
@@ -117,7 +140,40 @@ namespace RestaurantRecommender.MLTrainer
                     restaurantId = predictionrestaurantId
                 });
             Restaurant restaurantService = new Restaurant();
-            Console.WriteLine("For userId:" + predictionuserId + " restaurant rating prediction (1 - 5 stars) for restaurant name:" + predictionrestaurantId + " is:" + Math.Round(restaurant_prediction.Score, 1));
+            Console.WriteLine($"For userId: {predictionuserId} restaurant rating prediction (1 - 5 stars) for restaurant name: {predictionrestaurantId} is: {Math.Round(restaurant_prediction.PredictedRating, 1)}");
+
+            using (var reader = new StreamReader(Path.Combine(Environment.CurrentDirectory, "Data", restaurant_base_fileName)))
+            {
+                string headerLine = reader.ReadLine();
+                string line;
+                while (!reader.EndOfStream)
+                {
+                    line = reader.ReadLine();
+                    var values = line.Split(",");
+
+                    restaurant_Detail_List.Add(new Restaurant()
+                    {
+                        RestaurantId = Convert.ToInt32(values[0]),
+                        RestaurantName = values[1],
+                        RestaurantType = values[2]
+                    });
+                }
+            }
+
+            var top5 = (from r in restaurant_Detail_List
+                        let p = prediction_engine.Predict(
+                            new RestaurantRating()
+                            {
+                                userId = predictionuserId,
+                                restaurantId = r.RestaurantId
+                            })
+                        orderby p.PredictedRating descending
+                        select (Restaurant: r.RestaurantId, Score: p.PredictedRating)).Take(5);
+
+            foreach (var t in top5)
+            {
+                Console.WriteLine($"  Score:{t.Score}\tRestaurant: {t.Restaurant}");
+            }
         }
 
         public static void SaveModel(MLContext mlContext, DataViewSchema trainingDataViewSchema, ITransformer model)
@@ -129,12 +185,10 @@ namespace RestaurantRecommender.MLTrainer
             Console.ReadLine();
         }
 
-        public static void Generate_Training_CSV_File()
+        public static void Generate_Training_And_Testing_CSV_File(MLContext mlContext)
         {
             Console.WriteLine("=============== Please wait reading and writing process for csv files ===============");
             // Reading the base csv file
-            List<string> Restaurant_ID = new List<string>();
-
             if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Data", restaurant_base_fileName)))
             {
                 throw new FileNotFoundException();
@@ -150,14 +204,16 @@ namespace RestaurantRecommender.MLTrainer
                         line = reader.ReadLine();
                         var values = line.Split(",");
 
-                        Restaurant_ID.Add(values[0]);
+                        restaurant_Detail_List.Add(new Restaurant()
+                        {
+                            RestaurantId = Convert.ToInt32(values[0]),
+                            RestaurantName = values[1],
+                            RestaurantType = values[2]
+                        });
                     }
                 }
-
-                for (int i = 0; i < 10000; i++)
-                {
-                    Generate_RestaurantRating_List(Generate_Training_Data(Restaurant_ID));
-                }
+                // Generating sample training dataset
+                Generate_Training_Data(restaurant_Detail_List);
             }
 
             // Saving the csv file for training data for ML
@@ -165,10 +221,17 @@ namespace RestaurantRecommender.MLTrainer
             if (!File.Exists(model_path))
             {
                 Console.WriteLine("=============== Restaurant Training data started writing to a file process ===============");
+                // Loading the generated restaurant list from memory
+                var dataview = mlContext.Data.LoadFromEnumerable(restaurant_Test_List);
+                // Configuration settings for dataset splitting 
+                var split = mlContext.Data.TrainTestSplit(dataview, testFraction: 0.2);
+                train_dataset = mlContext.Data.CreateEnumerable<RestaurantTest>(split.TrainSet, reuseRowObject: false);
+                test_dataset = mlContext.Data.CreateEnumerable<RestaurantTest>(split.TestSet, reuseRowObject: false);
+                
                 var csv_content = new StringBuilder();
                 // Add csv headers
                 csv_content.AppendLine("userId,restaurantId,rating");
-                foreach (var item in restaurant_Test_List.OrderBy(x => x.userid))
+                foreach (var item in train_dataset.OrderBy(x => x.userid))
                 {
                     //csv_content.AppendLine(string.Join(",", item));
                     csv_content.AppendLine($"{item.userid},{item.restaurantid},{item.rating}");
@@ -182,9 +245,6 @@ namespace RestaurantRecommender.MLTrainer
             }
 
             // Saving the csv file for test data for ML
-            // Generating test data for ML
-            var test_list = Generate_Test_Data(Restaurant_ID);
-
             var test_model_path = Path.Combine(Environment.CurrentDirectory, "Data", test_fileName);
             if (!File.Exists(test_model_path))
             {
@@ -192,7 +252,7 @@ namespace RestaurantRecommender.MLTrainer
                 var csv_content = new StringBuilder();
                 // Add csv headers
                 csv_content.AppendLine("userId,restaurantId,rating");
-                foreach (var item in test_list)
+                foreach (var item in test_dataset.OrderBy(x => x.userid))
                 {
                     //csv_content.AppendLine(string.Join(",", item));
                     csv_content.AppendLine($"{item.userid},{item.restaurantid},{item.rating}");
@@ -206,48 +266,69 @@ namespace RestaurantRecommender.MLTrainer
             }
         }
 
-        public static RestaurantTest Generate_Training_Data(List<string> id)
+        public static List<RestaurantTest> Generate_Training_Data(List<Restaurant> restaurant)
         {
-            int index = random.Next(id.Count);
-            float r_id = float.Parse(id[index], CultureInfo.InvariantCulture.NumberFormat);
-            return new RestaurantTest()
-            {
-                restaurantid = r_id,
-                userid = random.Next(1, 7),
-                rating = random.Next(1, 6)
-            };
-        }
-
-        public static List<RestaurantTest> Generate_Test_Data(List<string> id)
-        {
-            IEnumerable<int> ratings_test = Enumerable.Empty<int>();
             IEnumerable<int> users_test = Enumerable.Empty<int>();
-            List<RestaurantTest> r_tests = new List<RestaurantTest>();
-            ratings_test = Enumerable.Range(1, 5);
             users_test = Enumerable.Range(1, 6);
-            for (int i = 0; i < 30; i++)
-            {
-                int index = random.Next(id.Count);
-                int rate_index = random.Next(ratings_test.ToList().Count);
-                int user_index = random.Next(users_test.ToList().Count);
-
-                r_tests.Add(new RestaurantTest()
+            restaurant.GroupBy(r => r.RestaurantId)
+                .ToList()
+                .ForEach(r =>
                 {
-                    rating = ratings_test.ToList().ElementAt(rate_index),
-                    userid = users_test.ToList().ElementAt(user_index),
-                    restaurantid = float.Parse(id[index], CultureInfo.InvariantCulture.NumberFormat)
+                    // Grouping the restaurant based on restaurant ID
+                    foreach (var item in r)
+                    {
+                        // Looping against the number of users visiting each restaurant group
+                        foreach (var user in users_test)
+                        {
+                            restaurant_Test_List.Add(new RestaurantTest()
+                            {
+                                restaurantid = (float)item.RestaurantId,
+                                userid = (float)user,
+                                rating = random.Next(1, 6)
+                            });
+                        }
+                    }
                 });
-            }
-            return r_tests.OrderBy(x => x.userid).ToList();
+            return restaurant_Test_List;
         }
 
-        public static List<RestaurantTest> Generate_RestaurantRating_List(RestaurantTest restaurantTest)
+        // Setting up auto ML
+        private static void Best_Machine_Learning_Algorithm(MLContext mlContext, IDataView training_data_view)
         {
-            if (restaurant_Test_List != null && restaurantTest != null)
+            Console.WriteLine("=============== Performing Regression Analysis for the best algorithm for the dataset model ===============");
+            var settings = new RegressionExperimentSettings
             {
-                restaurant_Test_List.Add(restaurantTest);
-            }
-            return restaurant_Test_List;
+                MaxExperimentTimeInSeconds = 10
+            };
+
+            var experiment = mlContext.Auto().CreateRegressionExperiment(settings);
+
+            var progress = new Progress<RunDetail<RegressionMetrics>>(x =>
+            {;
+                if (x.ValidationMetrics != null)
+                {
+                    stopwatch.Start();
+                    Console.WriteLine(Environment.NewLine);
+                    Console.WriteLine($"Current result:");
+                    Console.WriteLine($"Metrics for Trainer name - {x.TrainerName}");
+                    Console.WriteLine($"RSquared - {x.ValidationMetrics.RSquared:0.##}");
+                    Console.WriteLine($"RootMeanSquaredError - {x.ValidationMetrics.RootMeanSquaredError:0.##}");
+                    Console.WriteLine($"Absolute Loss - {x.ValidationMetrics.MeanAbsoluteError:0.##}");
+                    Console.WriteLine($"Squared Loss - {x.ValidationMetrics.MeanSquaredError:0.##}");
+                    stopwatch.Stop();
+                    Console.WriteLine($"Time taken - {stopwatch.ElapsedMilliseconds} ms");
+                }
+            });
+
+            var result = experiment.Execute(training_data_view, labelColumnName: "Label", progressHandler: progress);
+
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine("Best run:");
+            Console.WriteLine($"Trainer name - {result.BestRun.TrainerName}");
+            Console.WriteLine($"RSquared - {result.BestRun.ValidationMetrics.RSquared:0.##}");
+            Console.WriteLine($"RootMeanSquaredError - {result.BestRun.ValidationMetrics.RootMeanSquaredError:0.##}");
+            Console.WriteLine($"Absolute Loss - {result.BestRun.ValidationMetrics.MeanAbsoluteError:0.##}");
+            Console.WriteLine($"Squared Loss - {result.BestRun.ValidationMetrics.MeanSquaredError:0.##}");
         }
 
         public static string GetAbsolutePath(string relativePath)
