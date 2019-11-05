@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
+using RestaurantRecommender.MLCommon;
 
 namespace RestaurantRecommender.API
 {
@@ -25,6 +27,8 @@ namespace RestaurantRecommender.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Machine learning prediction service to be called at runtime
+            services.AddPredictionEnginePool<RestaurantRating, RestaurantPrediction>().FromFile(Configuration["MLModelPath"]);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
