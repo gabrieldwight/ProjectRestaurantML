@@ -10,11 +10,24 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.ML" Version="1.4.0" />
     <PackageReference Include="Microsoft.ML" Version="1.4.0" />
+    <PackageReference Include="Microsoft.ML.Recommender" Version="0.16.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RestaurantRecommender.MLCommon\RestaurantRecommender.MLCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\Restaurant_Visited_By_Users.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\SampleRestaurantList.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Restaurant_RecommenderModel.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
