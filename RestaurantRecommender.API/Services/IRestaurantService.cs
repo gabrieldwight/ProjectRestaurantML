@@ -11,8 +11,8 @@ namespace RestaurantRecommender.API.Services
         Restaurant Get_Restaurant_Detail(int id);
         List<Restaurant> Get_All_Restaurants();
         string Trained_MachineLearning_ModelPath();
-        List<Restaurant> PredictRestaurantList ();
 
         List<Restaurant> GetBestRestaurants { get; }
+        List<Restaurant> GetBestRestaurantByType(string type);
     }
 }
