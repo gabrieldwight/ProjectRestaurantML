@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
+using Microsoft.ML;
+using RestaurantRecommender.API.Services;
 using RestaurantRecommender.MLCommon;
 
 namespace RestaurantRecommender.API
@@ -27,8 +29,12 @@ namespace RestaurantRecommender.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<MLContext>();
+            services.AddSingleton<IRestaurantService, RestaurantService>();
+            services.AddSingleton<IUserProfileService, UserProfileService>();
             // Machine learning prediction service to be called at runtime
-            services.AddPredictionEnginePool<RestaurantRating, RestaurantPrediction>().FromFile(Configuration["MLModelPath"]);
+            services.AddPredictionEnginePool<RestaurantRating, RestaurantPrediction>()
+                .FromFile(modelName: "Restaurant_Recommendation_Model", filePath: "Models/Restaurant_RecommenderModel.zip", watchForChanges: true);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
