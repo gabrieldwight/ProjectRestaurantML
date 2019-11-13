@@ -8,6 +8,7 @@ namespace RestaurantRecommender.MLCommon
     {
         public int UserId { get; set; }
         public string UserImage { get; set; }
-        public List<(int restaurantId, int restaurantRating)> UserRestaurantRatings { get; set; }
+        public int restaurantId { get; set; }
+        public int restaurantRating { get; set; }
     }
 }
