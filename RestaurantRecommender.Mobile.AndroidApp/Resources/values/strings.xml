@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Restaurant Recommendation</string>
+    <string name="action_settings">Settings</string>
+    <string name="offline_message">No Connection</string>
+    <string name="online_message">Back Online</string>
+    <string name="title_home">Home</string>
+    <string name="title_recommend">Recommendations</string>
+    <string name="title_type">More recommendations</string>
+    <string name="title_visited">Visited Restaurants</string>
+    <string name="app_center_api">e0bc8ffc-18b2-484a-9db0-ada82629ce15</string>
+</resources>
