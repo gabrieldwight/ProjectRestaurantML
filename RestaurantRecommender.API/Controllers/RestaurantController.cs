@@ -77,7 +77,7 @@ namespace RestaurantRecommender.API.Controllers
             return Ok(results);
         }
 
-        // Returning a list of restaurants based on the type specified
+        // Returning a list of recommended restaurants based on the type specified
         //api/Restaurant/recommended_type?(type=x)&(id=x)
         [HttpGet("recommended_type")]
         public IActionResult Recommended_Restaurant_Type([FromQuery] string type, [FromQuery] int id)
@@ -138,7 +138,7 @@ namespace RestaurantRecommender.API.Controllers
         [HttpGet("users")]
         public IActionResult User_Profiles()
         {
-            return Ok(_userProfileService.GetUsers);
+            return Ok(_userProfileService.GetUsers.GroupBy(x => x.UserId).Select(x => x.First()).ToList());
         }
 
         // Returning a list of restaurants
