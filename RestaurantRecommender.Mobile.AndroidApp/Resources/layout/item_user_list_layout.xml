@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.card.MaterialCardView
+<com.google.android.material.card.MaterialCardView
      xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,7 +18,7 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp">
@@ -46,7 +46,7 @@
             app:layout_constraintStart_toEndOf="@+id/userimage"
             app:layout_constraintTop_toTopOf="@+id/userimage" />
 
-        <android.support.design.button.MaterialButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/select_user_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -75,5 +75,5 @@
             app:layout_constraintEnd_toEndOf="@+id/userimagee"
             app:layout_constraintStart_toStartOf="@+id/userimage"
             app:layout_constraintTop_toTopOf="@+id/userimage" />
-    </android.support.constraint.ConstraintLayout>
-</android.support.design.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V7.App;
-using Android.Support.V7.Widget;
-using Android.Views;
-using Android.Widget;
+using AndroidX.AppCompat.App;
+using AndroidX.RecyclerView.Widget;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
@@ -33,7 +27,7 @@ namespace RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant
             AppCenter.Start(GetString(Resource.String.app_center_api), typeof(Analytics), typeof(Crashes));
             // Create your application here
             SetContentView(Resource.Layout.activity_user);
-            Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
+            AndroidX.AppCompat.Widget.Toolbar toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(false);
             SupportActionBar.SetDisplayShowTitleEnabled(true);

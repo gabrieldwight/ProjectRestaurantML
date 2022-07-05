@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
-using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using RestaurantRecommender.MLCommon.ViewModel;
 using RestaurantRecommender.Mobile.AndroidApp.Adapter;
 using RestaurantRecommender.Services.Core;
@@ -18,7 +12,7 @@ using Xamarin.Essentials;
 
 namespace RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant
 {
-    public class RecommendFragment : Android.Support.V4.App.Fragment
+    public class RecommendFragment : AndroidX.Fragment.App.Fragment
     {
         private List<Restaurant_Recommendation_Results> restaurantItemModel = new List<Restaurant_Recommendation_Results>();
         private RestaurantRecommendationListAdapter restaurantrecommendationAdapter;
@@ -78,8 +72,8 @@ namespace RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant
                 {
                     Activity.RunOnUiThread(() =>
                     {
-                        Android.Support.V7.App.AlertDialog.Builder dialog = new Android.Support.V7.App.AlertDialog.Builder(Context);
-                        Android.Support.V7.App.AlertDialog alert = dialog.Create();
+                        AndroidX.AppCompat.App.AlertDialog.Builder dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(Context);
+                        AndroidX.AppCompat.App.AlertDialog alert = dialog.Create();
                         alert.SetTitle("Error");
                         alert.SetMessage(ex.Message.ToString());
                         alert.SetCancelable(true);
@@ -91,8 +85,8 @@ namespace RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant
             {
                 Activity.RunOnUiThread(() =>
                 {
-                    Android.Support.V7.App.AlertDialog.Builder dialog = new Android.Support.V7.App.AlertDialog.Builder(Context);
-                    Android.Support.V7.App.AlertDialog alert = dialog.Create();
+                    AndroidX.AppCompat.App.AlertDialog.Builder dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(Context);
+                    AndroidX.AppCompat.App.AlertDialog alert = dialog.Create();
                     alert.SetTitle("Error");
                     alert.SetMessage("Please connect to the internet");
                     alert.SetCancelable(true);

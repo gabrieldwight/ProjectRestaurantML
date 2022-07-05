@@ -13,10 +13,10 @@ namespace RestaurantRecommender.API.Services
         public Lazy<List<Restaurant>> _restaurants = new Lazy<List<Restaurant>>(LoadRestaurantData);
         public static readonly string _machinelearning_modelpath = "Restaurant_RecommenderModel.zip";
         private static readonly string _restaurant_base_fileName = "SampleRestaurantList.csv";
-        private static IHostingEnvironment _hostingEnvironment;
+        private static IWebHostEnvironment _hostingEnvironment;
         private static readonly Random random = new Random();
         // Constructor to initialize dependency injection for IHosting service
-        public RestaurantService(IHostingEnvironment hostingEnvironment)
+        public RestaurantService(IWebHostEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
         }

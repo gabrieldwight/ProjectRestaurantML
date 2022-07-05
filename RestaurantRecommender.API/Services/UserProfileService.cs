@@ -10,11 +10,11 @@ namespace RestaurantRecommender.API.Services
 {
     public class UserProfileService : IUserProfileService
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private static readonly string _restaurant_visited_base_fileName = "Restaurant_Visited_By_Users.csv";
         private List<UserProfile> _users = new List<UserProfile>();
         
-        public UserProfileService(IHostingEnvironment hostingEnvironment)
+        public UserProfileService(IWebHostEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
             _users = LoadUserDataSample();

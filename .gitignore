@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/RestaurantRecommender.API/Content
+/RestaurantRecommender.API/Models/Restaurant_RecommenderModel.zip
+/RestaurantRecommender.MLTrainer/Data/SampleRestaurantList.csv

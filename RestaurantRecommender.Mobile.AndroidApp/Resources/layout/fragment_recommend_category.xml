@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp">
@@ -33,7 +33,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView37">
-            <android.support.design.chip.ChipGroup
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,57 +43,57 @@
         android:background="#fafff7"
         app:singleLine="true"
         app:singleSelection="true">
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipBuffet"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Buffet"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipCafe"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cafe"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipCasualdining"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Casual Dining"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipFamilystyle"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Family Style"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipFastfood"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fast Food"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <android.support.design.chip.Chip
+                <com.google.android.material.chip.Chip
                     android:id="@+id/chipSnackbar"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Snack Bar"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-            </android.support.design.chip.ChipGroup>
+            </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recommend_restaurant_category_recyclerview"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontalscroll" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v4.widget.NestedScrollView>
-</android.support.v4.widget.SwipeRefreshLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

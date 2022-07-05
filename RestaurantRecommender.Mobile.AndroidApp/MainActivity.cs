@@ -1,19 +1,17 @@
 ﻿using Android.App;
 using Android.OS;
-using Android.Support.V7.App;
 using Android.Runtime;
-using Android.Widget;
 using Android.Content.PM;
-using Android.Support.Design.Widget;
 using RestaurantRecommender.Mobile.AndroidApp.Extensions;
 using RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant;
 using Newtonsoft.Json;
-using RestaurantRecommender.Mobile.AndroidApp.Adapter;
-using System.Collections.Generic;
 using RestaurantRecommender.MLCommon;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using AndroidX.AppCompat.App;
+using Google.Android.Material.BottomNavigation;
+using AndroidX.CoordinatorLayout.Widget;
 
 namespace RestaurantRecommender.Mobile.AndroidApp
 {
@@ -31,7 +29,7 @@ namespace RestaurantRecommender.Mobile.AndroidApp
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
-            Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
+            AndroidX.AppCompat.Widget.Toolbar toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             SupportActionBar.SetDisplayShowTitleEnabled(true);
@@ -39,19 +37,16 @@ namespace RestaurantRecommender.Mobile.AndroidApp
             SupportActionBar.Subtitle = $"Welcome User {selecteduser.UserId}";
 
             bottomNavigationView = FindViewById<BottomNavigationView>(Resource.Id.nav_view);
-            bottomNavigationView.NavigationItemSelected += BottomNavigationView_NavigationItemSelected;
+            bottomNavigationView.ItemSelected += BottomNavigationView_ItemSelected;
+
             coordinatorLayout = FindViewById<CoordinatorLayout>(Resource.Id.coordinatorlayout);
 
-            
-            /*var a = restaurantItemModel.GroupBy(x => x.RestaurantType)
-                .Select(group => new Restaurant()
-                {
-                    RestaurantType = group.Key,
-                    RestaurantName = group.FirstOrDefault().RestaurantName
-                }).ToList();*/
-
-            // Load the first fragment
             LoadFragment(Resource.Id.navigation_home);
+        }
+
+        private void BottomNavigationView_ItemSelected(object sender, Google.Android.Material.Navigation.NavigationBarView.ItemSelectedEventArgs e)
+        {
+            LoadFragment(e.Item.ItemId);
         }
 
         // Activity lifecycle
@@ -79,14 +74,9 @@ namespace RestaurantRecommender.Mobile.AndroidApp
             Xamarin.Essentials.Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
         }
 
-        private void BottomNavigationView_NavigationItemSelected(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
-        {
-            LoadFragment(e.Item.ItemId);
-        }
-
         private void LoadFragment(int position)
         {
-            Android.Support.V4.App.Fragment fragment = null;
+            AndroidX.Fragment.App.Fragment fragment = null;
             Bundle bundle = new Bundle();
             switch (position)
             {

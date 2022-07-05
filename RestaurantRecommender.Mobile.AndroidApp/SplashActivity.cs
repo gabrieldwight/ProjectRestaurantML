@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using AndroidX.AppCompat.App;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Newtonsoft.Json;
-using RestaurantRecommender.MLCommon;
 using RestaurantRecommender.Mobile.AndroidApp.Adapter;
 using RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant;
 using RestaurantRecommender.Services.Core;
@@ -77,8 +73,8 @@ namespace RestaurantRecommender.Mobile.AndroidApp
                 {
                     RunOnUiThread(() =>
                     {
-                        Android.Support.V7.App.AlertDialog.Builder dialog = new Android.Support.V7.App.AlertDialog.Builder(this);
-                        Android.Support.V7.App.AlertDialog alert = dialog.Create();
+                        AndroidX.AppCompat.App.AlertDialog.Builder dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(this);
+                        AndroidX.AppCompat.App.AlertDialog alert = dialog.Create();
                         alert.SetTitle("Error");
                         alert.SetMessage(ex.Message.ToString());
                         alert.SetCancelable(true);
@@ -90,8 +86,8 @@ namespace RestaurantRecommender.Mobile.AndroidApp
             {
                 RunOnUiThread(() =>
                 {
-                    Android.Support.V7.App.AlertDialog.Builder dialog = new Android.Support.V7.App.AlertDialog.Builder(this);
-                    Android.Support.V7.App.AlertDialog alert = dialog.Create();
+                    AndroidX.AppCompat.App.AlertDialog.Builder dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(this);
+                    AndroidX.AppCompat.App.AlertDialog alert = dialog.Create();
                     alert.SetTitle("Error");
                     alert.SetMessage("Please connect to the internet");
                     alert.SetCancelable(true);

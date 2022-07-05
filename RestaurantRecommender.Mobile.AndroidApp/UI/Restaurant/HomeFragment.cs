@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
+﻿using System.Collections.Generic;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V7.Widget;
-using Android.Util;
 using Android.Views;
-using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
 using RestaurantRecommender.Mobile.AndroidApp.Adapter;
 
 namespace RestaurantRecommender.Mobile.AndroidApp.UI.Restaurant
 {
-    public class HomeFragment : Android.Support.V4.App.Fragment
+    public class HomeFragment : AndroidX.Fragment.App.Fragment
     {
         private List<RestaurantSection> restaurantItemModel = new List<RestaurantSection>();
         private RestaurantSectionAdapter restaurantSectionAdapter;
